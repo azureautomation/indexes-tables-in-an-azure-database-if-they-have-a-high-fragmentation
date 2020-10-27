@@ -1,0 +1,20 @@
+{
+    "Author": "Azure Automation Product Team",
+    "ContentSize": 8968,
+    "ContentUrl": "https://raw.githubusercontent.com/azureautomation/indexes-tables-in-an-azure-database-if-they-have-a-high-fragmentation/master/Update-SQLIndexRunbook.ps1",
+    "DownloadCount": 13844,
+    "Id": "Indexes-tables-in-an-Azure-73a2a8ea",
+    "IsFederated": true,
+    "IsWorkflow": true,
+    "Popularity": 10,
+    "RaterCount": 10,
+    "Rating": 4.5,
+    "ReleaseDate": "2014-10-12T00:00:00",
+    "RunbookKind": 6,
+    "RunbookKindString": "PowerShell Workflow",
+    "Summary": "This runbook indexes all of the tables in a given database if the fragmentation is above a certain percentage. It highlights how to break up calls into smaller chunks, in this case each table in a database, and use checkpoints.Please read the runbook for additional information.",
+    "Title": "Indexes tables in an Azure database if they have a high fragmentation",
+    "UpdatedDate": "2014-10-12T00:00:00",
+    "Url": "https://github.com/azureautomation/indexes-tables-in-an-azure-database-if-they-have-a-high-fragmentation",
+    "UserTags": "Monitoring, Windows Azure SQL Database Administration"
+}
