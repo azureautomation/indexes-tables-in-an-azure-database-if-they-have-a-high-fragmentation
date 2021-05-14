@@ -95,7 +95,7 @@ workflow Update-SQLIndexRunbook
         
         # SQL command to find tables and their average fragmentation
         $SQLCommandString = @"
-        SELECT a.object_id, avg_fragmentation_in_percent
+        SELECT a.object_id,so.name as TableName, sc.name as schemaName,avg_fragmentation_in_percent
         FROM sys.dm_db_index_physical_stats (
                DB_ID(N'$Database')
              , OBJECT_ID(0)
@@ -103,7 +103,12 @@ workflow Update-SQLIndexRunbook
              , NULL
              , NULL) AS a
         JOIN sys.indexes AS b 
-        ON a.object_id = b.object_id AND a.index_id = b.index_id;
+        ON a.object_id = b.object_id AND a.index_id = b.index_id
+        join sys.objects so
+        ON a.object_id=so.object_id
+        join sys.schemas sc
+        on so.schema_id=sc.schema_id
+        WHERE so.type_desc='USER_TABLE'
 "@
         # Return the tables with their corresponding average fragmentation
         $Cmd=new-object system.Data.SqlClient.SqlCommand($SQLCommandString, $Conn)
@@ -113,20 +118,6 @@ workflow Update-SQLIndexRunbook
         $FragmentedTable=New-Object system.Data.DataSet
         $Da=New-Object system.Data.SqlClient.SqlDataAdapter($Cmd)
         [void]$Da.fill($FragmentedTable)
-
- 
-        # Get the list of tables with their object ids
-        $SQLCommandString = @"
-        SELECT  t.name AS TableName, t.OBJECT_ID FROM sys.tables t
-"@
-
-        $Cmd=new-object system.Data.SqlClient.SqlCommand($SQLCommandString, $Conn)
-        $Cmd.CommandTimeout=120
-
-        # Execute the SQL command
-        $TableSchema =New-Object system.Data.DataSet
-        $Da=New-Object system.Data.SqlClient.SqlDataAdapter($Cmd)
-        [void]$Da.fill($TableSchema)
 
 
         # Return the table names that have high fragmentation
@@ -138,15 +129,11 @@ workflow Update-SQLIndexRunbook
             If ($FragTable.avg_fragmentation_in_percent -ge $Using:FragPercentage)
             {
                 # Table is fragmented. Return this table for indexing by finding its name
-                ForEach($Id in $TableSchema.Tables[0])
-                {
-                    if ($Id.OBJECT_ID -eq $FragTable.object_id.ToString())
-                     {
-                        # Found the table name for this table object id. Return it
-                        Write-Verbose ("Found a table to index! : " +  $Id.Item("TableName"))
-                        $Id.TableName
-                    }
-                }
+
+                $FragTable.Item("schemaName")  + "." + $FragTable.Item("TableName")
+                    
+                
+
             }
         }
 
